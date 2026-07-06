@@ -1,6 +1,8 @@
-import Account.BankAccount;
+import BankingSystem.BankAccount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,72 +13,72 @@ public class BankAccountTest {
 
     @BeforeEach
     public void setUp(){
-        account = new BankAccount();
+        account = new BankAccount("Elijah Miracle", "1234", "1001");
+    }
+
+    @Test
+    public void createAccount(){
+        account = new BankAccount("Elijah Miracle", "1234", "1001");
+        assertEquals("Elijah Miracle", account.getAccountName());
     }
 
     @Test
     public void deposit200AndGetBalanceOf200(){
         account.deposit(200);
-        assertEquals(200, account.getBalance());
+        assertEquals(BigDecimal.valueOf(200), account.getBalance("1234"));
     }
 
     @Test
     public void deposit500_And_Deposit200ToGet700(){
         account.deposit(500);
         account.deposit(200);
-        assertEquals(700, account.getBalance());
+        assertEquals(BigDecimal.valueOf(700), account.getBalance("1234"));
     }
 
     @Test
     public void depositANegativeValueAndGet0(){
-        account.deposit(-50);
-        assertEquals(0, account.getBalance());
+        assertThrows(IllegalArgumentException.class, () -> account.deposit(-50));
+        assertEquals(BigDecimal.valueOf(0), account.getBalance("1234"));
     }
 
     @Test
     public void balanceIs50_And_IWithdraw50(){
-        account.setPin(1234);
         account.deposit(50);
-        account.withdraw(50, 1234);
-        assertEquals(0, account.getBalance());
+        account.withdraw(50, "1234");
+        assertEquals(BigDecimal.valueOf(0), account.getBalance("1234"));
     }
 
     @Test
     public void balanceIs500_And_IWithdraw200_And_BalanceIs300(){
-        account.setPin(1234);
         account.deposit(500);
-        account.withdraw(200, 1234);
-        assertEquals(300, account.getBalance());
+        account.withdraw(200, "1234");
+        assertEquals(BigDecimal.valueOf(300), account.getBalance("1234"));
     }
 
     @Test
     public void balanceIs500_And_IWithdraw10000(){
-        account.setPin(1234);
         account.deposit(500);
-        assertThrows(IllegalArgumentException.class, () -> account.withdraw(10000, 1234));
-        assertEquals(500, account.getBalance());
+        assertThrows(IllegalArgumentException.class, () -> account.withdraw(10000, "1234"));
+        assertEquals(BigDecimal.valueOf(500), account.getBalance("1234"));
     }
 
     @Test
     public void cannotWithdrawNegativeAmount(){
-        account.setPin(1234);
         account.deposit(500);
-        assertThrows(IllegalArgumentException.class, () -> account.withdraw(-200, 1234));
-        assertEquals(500, account.getBalance());
+        assertThrows(IllegalArgumentException.class, () -> account.withdraw(-200, "1234"));
+        assertEquals(BigDecimal.valueOf(500), account.getBalance("1234"));
     }
 
     @Test
     public void iSetPinForBankAccountAndWithdrawUsingMyPin(){
-        account.setPin(1234);
         account.deposit(5000);
-        account.withdraw(2000, 1234);
-        assertEquals(3000, account.getBalance());
+        account.withdraw(2000, "1234");
+        assertEquals(BigDecimal.valueOf(3000), account.getBalance("1234"));
     }
 
     @Test
     public void getErrorForPuttingInTheWrongPin(){
-        account.setPin(1234);
         account.deposit(5000);
-        assertThrows(IllegalArgumentException.class, () -> account.withdraw(1245, 3456));
+        assertThrows(IllegalArgumentException.class, () -> account.withdraw(1245, "3456"));
     }
 }
