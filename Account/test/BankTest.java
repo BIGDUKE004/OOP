@@ -1,5 +1,7 @@
 import BankingSystem.Bank;
 import BankingSystem.BankAccount;
+import BankingSystem.exceptions.InsufficientFundException;
+import BankingSystem.exceptions.InvalidAmountException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +15,7 @@ public class BankTest {
     @BeforeEach
     public void setBankName(){
         bank = new Bank("Elijah's Bank");
-        bank.registerAccount("Elijah", "Miracle", "1234");
+        String accountNumber = bank.registerAccount("Elijah", "Miracle", "1234");
     }
 
     @Test
@@ -29,57 +31,72 @@ public class BankTest {
 
     @Test
     public void iHaveAnAccountAndIDeposit_2000_IntoIt(){
-        bank.deposit(2000, "1001");
-        assertEquals(BigDecimal.valueOf(2000), bank.checkBalance("1234", "1001"));
+        String accountNumber = bank.registerAccount("ashabi", "ashanty", "1234");
+        bank.deposit(2000, accountNumber);
+        assertEquals(BigDecimal.valueOf(2000), bank.checkBalance("1234", accountNumber));
     }
 
     @Test
     public void iHaveAnAccountAndIDepositANegativeNumber(){
-        assertThrows(IllegalArgumentException.class, () -> bank.deposit(-50, "1001"));
+        String accountNumber = bank.registerAccount("ashabi", "ashanty", "1234");
+        assertThrows(InvalidAmountException.class, () -> bank.deposit(-50, accountNumber));
     }
 
     @Test
     public void iHaveAnAccountWith_2000_AndIWithdraw_1000_AndHaveABalanceOf_1000(){
-        bank.deposit(2000, "1001");
-        assertEquals(BigDecimal.valueOf(2000), bank.checkBalance("1234", "1001"));
-        bank.withdraw("1001", 1000, "1234");
-        assertEquals(BigDecimal.valueOf(1000), bank.checkBalance("1234", "1001"));
+        String accountNumber = bank.registerAccount("ashabi", "ashanty", "1234");
+        bank.deposit(2000, accountNumber);
+        assertEquals(BigDecimal.valueOf(2000), bank.checkBalance("1234", accountNumber));
+        bank.withdraw(accountNumber, 1000, "1234");
+        assertEquals(BigDecimal.valueOf(1000), bank.checkBalance("1234", accountNumber));
     }
 
     @Test
     public void iHaveAnAccountWith200AndIWithdrawANegativeNumber(){
-        bank.deposit(200, "1001");
-        assertThrows(IllegalArgumentException.class, () -> bank.withdraw("1001", 1000, "1234"));
+        String accountNumber = bank.registerAccount("ashabi", "ashanty", "1234");
+        bank.deposit(200, accountNumber);
+        assertThrows(InsufficientFundException.class, () -> bank.withdraw(accountNumber, 1000, "1234"));
     }
 
     @Test
     public void iHaveAnAccountWith200AndIWithdraw1000(){
-        bank.deposit(200, "1001");
-        assertThrows(IllegalArgumentException.class, () -> bank.withdraw("1001", 1000, "1234"));
+        String accountNumber = bank.registerAccount("ashabi", "ashanty", "1234");
+        bank.deposit(200, accountNumber);
+        assertThrows(InsufficientFundException.class, () -> bank.withdraw(accountNumber, 1000, "1234"));
     }
 
     @Test
     public void IHave2000InMyAccountAndITransfer1500ToAnotherAccount(){
-        bank.registerAccount("ashabi", "ashanty", "1234");
+        String accountNumber = bank.registerAccount("ashabi", "ashanty", "1234");
         assertEquals(2, bank.getSize());
-        bank.deposit(2000, "1001");
-        assertEquals(BigDecimal.valueOf(2000), bank.checkBalance("1234", "1001"));
-        bank.transfer("1001", "1002", 1500, "1234");
-        assertEquals(BigDecimal.valueOf(500), bank.checkBalance("1234", "1001"));
-        assertEquals(BigDecimal.valueOf(1500), bank.checkBalance("1234", "1002"));
+        bank.deposit(2000, accountNumber);
+        assertEquals(BigDecimal.valueOf(2000), bank.checkBalance("1234", accountNumber));
+        String accountNumberTwo = bank.registerAccount("ashabi", "ashanty", "1234");
+        bank.transfer(accountNumber, accountNumberTwo, 1500, "1234");
+        assertEquals(BigDecimal.valueOf(500), bank.checkBalance("1234", accountNumber));
+        assertEquals(BigDecimal.valueOf(1500), bank.checkBalance("1234", accountNumberTwo));
     }
 
     @Test
     public void iHaveAnAccountAndITransferToANonExistingAccount(){
-        bank.deposit(1500, "1001");
+        String accountNumber = bank.registerAccount("ashabi", "ashanty", "1234");
+        bank.deposit(1500, accountNumber);
         assertThrows(IllegalArgumentException.class, () -> bank.transfer("1001", "1002", 1500, "1234"));
     }
 
     @Test
     public void IThereAreTwoAccountAndOneIsDeleted(){
-        bank.registerAccount("ashabi", "ashanty", "1234");
+        String accountNumber = bank.registerAccount("ashabi", "ashanty", "1234");
         assertEquals(2, bank.getSize());
-        bank.remove("1002");
+        bank.remove(accountNumber);
         assertEquals(1, bank.getSize());
+    }
+    
+    @Test
+    public void quickTest(){
+        String accountNumber = bank.registerAccount("ashabi", "ashanty", "1234");
+        assertEquals(2, bank.getSize());
+        bank.deposit(1500, accountNumber);
+        assertEquals(BigDecimal.valueOf(1500), bank.checkBalance("1234", accountNumber));
     }
 }

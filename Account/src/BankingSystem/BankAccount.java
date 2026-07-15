@@ -1,4 +1,8 @@
 package BankingSystem;
+import BankingSystem.exceptions.InsufficientFundException;
+import BankingSystem.exceptions.InvalidAmountException;
+import BankingSystem.exceptions.InvalidPinException;
+
 import java.math.BigDecimal;
 public class BankAccount {
     private String accountName;
@@ -17,17 +21,20 @@ public class BankAccount {
         return accountName;
     }
 
+
     public String getAccountNumber() {
         return accountNumber;
     }
+
 
     public void deposit(int amount){
         getDeposit(amount);
     }
 
+
     private void getDeposit(int depositMoney){
         if(depositMoney <= 0){
-            throw new IllegalArgumentException("Invalid Amount");
+            throw new InvalidAmountException("Invalid Amount");
         } else {
             BigDecimal amount = BigDecimal.valueOf(depositMoney);
             this.balance = this.balance.add(amount);
@@ -38,7 +45,7 @@ public class BankAccount {
 
     public BigDecimal getBalance(String pin){
         if(!this.pin.equals(pin)){
-            throw new IllegalArgumentException("Incorrect Pin, Please Try Again");
+            throw new InvalidPinException("Invalid Pin");
         }
         return balance;
     }
@@ -51,13 +58,13 @@ public class BankAccount {
 
     private void getWithdrawal(int amount, String pin){
             if (!this.pin.equals(pin)) {
-                throw new IllegalArgumentException("Invalid PIN");
+                throw new InvalidPinException("Invalid PIN");
             }
             if (amount <= 0) {
-                throw new IllegalArgumentException("Invalid Amount");
+                throw new InvalidAmountException("Invalid Amount");
             }
             if (BigDecimal.valueOf(amount).compareTo(balance) > 0){
-                throw new IllegalArgumentException("Insufficient funds");
+                throw new InsufficientFundException("Insufficient funds");
             }
             BigDecimal value = BigDecimal.valueOf(amount);
             this.balance = this.balance.subtract(value);
